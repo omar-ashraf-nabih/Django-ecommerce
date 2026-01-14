@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}السلة{% endblock %}
+{% block content %}
+
+<div class="pagehead">
+  <h1>سلة المشتريات</h1>
+  <a class="btn btn--ghost" href="{% url 'home' %}">استكمال التسوق</a>
+</div>
+
+{% if items %}
+  <form id="cartForm" method="post" action="{% url 'cart_update' %}">
+    {% csrf_token %}
+    <div class="table">
+      <div class="table__head">
+        <div>المنتج</div>
+        <div>السعر</div>
+        <div>الكمية</div>
+        <div>الإجمالي</div>
+        <div></div>
+      </div>
+
+      {% for it in items %}
+        <div class="table__row">
+          <div class="prod">
+            {% if it.image %}
+              <img class="thumb" src="{{ it.image }}" alt="{{ it.name }}">
+            {% else %}
+              <div class="thumb thumb--empty"></div>
+            {% endif %}
+            <div>
+              <a class="link" href="{% url 'product_detail' it.slug %}">{{ it.name }}</a>
+              {% if it.percent_off and it.percent_off > 0 %}
+                <div class="muted" style="margin-top:4px; font-size:12px;">
+                  صتحصل على خصم {{ it.percent_off }}% عند شراء كمية {{ it.qty }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="muted">
+            {% if it.percent_off and it.percent_off > 0 %}
+              <div style="text-decoration: line-through; opacity:.65;">{{ it.base_price }} EGP</div>
+              <div class="price">{{ it.unit_price }} EGP</div>
+            {% else %}
+              <div class="price">{{ it.unit_price }} EGP</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <input class="input input--qty" type="number" min="1" name="qty_{{ it.id }}" value="{{ it.qty }}">
+          </div>
+
+          <div class="price">{{ it.line_total }} EGP</div>
+
+          <div>
+            <a class="btn btn--danger" href="{% url 'cart_remove' it.id %}">حذف</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="cartbar">
+      <button class="btn btn--ghost" type="submit">تحديث الكميات</button>
+
+      <div class="cartbar__total">
+        {% if savings_total and savings_total > 0 %}
+          <span class="muted">خصم:</span>
+          <span class="price">{{ savings_total }} EGP</span>
+          <span class="muted" style="margin: 0 8px;">|</span>
+        {% endif %}
+        <span class="muted">الإجمالي:</span>
+        <span class="price">{{ total }} EGP</span>
+      </div>
+
+      <a class="btn btn--primary" href="{% url 'checkout' %}">إتمام الشراء</a>
+    </div>
+
+  </form>
+
+  <script>
+    (function(){
+      const form = document.getElementById("cartForm");
+      if(!form) return;
+      let t = null;
+      form.addEventListener("input", function(e){
+        if(!e.target || !e.target.name || !e.target.name.startsWith("qty_")) return;
+        if(t) clearTimeout(t);
+        t = setTimeout(() => form.submit(), 700);
+      });
+    })();
+  </script>
+
+{% else %}
+  <div class="empty">
+    السلة فارغة. <a class="link" href="{% url 'home' %}"> استكمال التسوق</a>
+  </div>
+{% endif %}
+
+{% endblock %}

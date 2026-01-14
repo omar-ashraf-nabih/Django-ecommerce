@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+
+<div class="pagehead">
+  <h1>إتمام الطلب</h1>
+  <a class="btn btn--ghost" href="{% url 'cart' %}">رجوع للسلة</a>
+</div>
+
+<div class="checkout">
+  <section class="panel">
+    <h2 class="panel__title">بيانات الاستلام</h2>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      <div class="field">
+        <label class="label">{{ form.full_name.label }}</label>
+        {{ form.full_name }}
+      </div>
+
+      <div class="field">
+        <label class="label">{{ form.phone.label }}</label>
+        {{ form.phone }}
+      </div>
+
+      <div class="field">
+        <label class="label">{{ form.address.label }}</label>
+        {{ form.address }}
+      </div>
+
+      <div class="field">
+        <label class="label">{{ form.notes.label }}</label>
+        {{ form.notes }}
+      </div>
+
+      <div class="hint">
+        عند الضغط على “تأكيد الطلب” سيتم فتح واتساب برسالة جاهزة بتفاصيل الطلب لإرسالها.
+      </div>
+
+      <button class="btn btn--primary btn--block" type="submit">تأكيد الطلب وفتح واتساب</button>
+    </form>
+  </section>
+
+  <aside class="panel">
+    <h2 class="panel__title">ملخص الطلب</h2>
+    <div class="summary">
+      {% for it in items %}
+        <div class="summary__row">
+          <div class="summary__name">{{ it.name }}</div>
+          <div class="muted">× {{ it.qty }}</div>
+          <div class="price">{{ it.line_total }} EGP</div>
+        </div>
+        {% if it.percent_off and it.percent_off > 0 %}
+          <div class="muted" style="margin-top:-6px; font-size:12px;">
+            سعر الوحدة بعد الخصم: {{ it.unit_price }} EGP (خصم {{ it.percent_off }}%)
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="summary__line"></div>
+
+      {% if savings_total and savings_total > 0 %}
+        <div class="summary__row">
+          <div class="muted">خصم</div>
+          <div></div>
+          <div class="price">{{ savings_total }} EGP</div>
+        </div>
+      {% endif %}
+
+      <div class="summary__row summary__row--total">
+        <div class="muted">الإجمالي</div>
+        <div></div>
+        <div class="price">{{ total }} EGP</div>
+      </div>
+
+      <div class="paynote">الدفع: كاش عند الاستلام</div>
+    </div>
+  </aside>
+</div>
+
+{% endblock %}

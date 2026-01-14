@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+
+<div class="detail">
+  <div class="detail__media">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+      <div class="placeholder placeholder--lg">بدون صورة</div>
+    {% endif %}
+  </div>
+
+  <div class="detail__info">
+    <h1 class="detail__title">{{ product.name }}</h1>
+    <div class="detail__price">{{ product.price }} EGP</div>
+    <p class="detail__desc">{{ product.description|linebreaksbr }}</p>
+
+    <form class="detail__form" method="post" action="{% url 'cart_add' product.id %}">
+      {% csrf_token %}
+      <label class="label">الكمية</label>
+      <div class="qty">
+        <input class="input" type="number" min="1" name="qty" value="1">
+        <button class="btn btn--primary" type="submit">أضف للسلة</button>
+      </div>
+    </form>
+
+    <a class="btn btn--ghost" href="{% url 'home' %}">رجوع للمنتجات</a>
+  </div>
+</div>
+
+{% endblock %}
